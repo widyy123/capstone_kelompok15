@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block title %}
+Tentang Aplikasi | BurnScan
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<section class="page-hero">
+
+    <div class="container">
+
+        <span class="tag">Tentang BurnScan</span>
+
+        <h1>
+            Teknologi di balik
+            analisis foto.
+        </h1>
+
+        <p>
+            Kenali cara kerja sistem klasifikasi
+            gambar menggunakan CNN
+            dalam bahasa yang sederhana.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- PENGENALAN -->
+<section class="section">
+
+    <div class="container">
+
+        <div class="about-intro">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    MENGENAL APLIKASI
+                </span>
+
+                <h2>
+                    Apa itu BurnScan?
+                </h2>
+
+            </div>
+
+            <div>
+
+                <p>
+                    BurnScan merupakan
+                    prototipe website penelitian
+                    yang menggunakan pengolahan
+                    citra digital dan kecerdasan
+                    buatan untuk mengelompokkan
+                    gambar berdasarkan dataset.
+                </p>
+
+                <p>
+                    Sistem ini menggunakan algoritma
+                    Convolutional Neural Network
+                    (CNN) untuk mengenali pola
+                    visual pada gambar.
+                </p>
+
+                <p>
+                    Selain hasil prediksi,
+                    aplikasi menampilkan
+                    edukasi pertolongan pertama.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- DUA TAHAP -->
+<section class="section section-muted">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                TEKNOLOGI UTAMA
+            </span>
+
+            <h2>
+                Dua tahap, satu sistem.
+            </h2>
+
+            <p>
+                Proses analisis dilakukan
+                melalui dua tahap utama.
+            </p>
+
+        </div>
+
+
+        <div class="about-tech-grid">
+
+            <article class="about-tech-card">
+
+                <span class="about-tech-number">
+                    01 / IMAGE PROCESSING
+                </span>
+
+                <div class="about-tech-icon">
+                    IMG
+                </div>
+
+                <h3>
+                    Praproses Citra
+                </h3>
+
+                <p>
+                    Sebelum dianalisis, gambar
+                    disiapkan agar sesuai dengan
+                    masukan yang dibutuhkan model.
+                </p>
+
+                <div class="tech-definition">
+
+                    <div>
+                        <strong>Ukuran</strong>
+                        <span>Gambar disesuaikan ke ukuran 224 × 224 piksel.</span>
+                    </div>
+
+                    <div>
+                        <strong>Normalisasi</strong>
+                        <span>Nilai piksel diubah dari 0–255 menjadi 0–1.</span>
+                    </div>
+
+                    <div>
+                        <strong>Format</strong>
+                        <span>Gambar dibaca dalam format warna RGB.</span>
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <article class="about-tech-card dark">
+
+                <span class="about-tech-number">
+                    02 / DEEP LEARNING
+                </span>
+
+                <div class="about-tech-icon">
+                    CNN
+                </div>
+
+                <h3>
+                    Convolutional Neural Network
+                </h3>
+
+                <p>
+                    CNN adalah model kecerdasan
+                    buatan yang mempelajari pola
+                    visual dari gambar. Aplikasi
+                    ini memakai arsitektur
+                    MobileNetV2 yang dilatih ulang
+                    dengan dataset penelitian
+                    (transfer learning).
+                </p>
+
+                <p>
+                    Setelah menerima gambar,
+                    CNN menghasilkan skor
+                    prediksi untuk kategori
+                    yang dipelajari.
+                </p>
+
+                <p class="tech-note">
+                    Prediksi merupakan hasil
+                    pengenalan pola, bukan
+                    pemeriksaan medis.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- KATEGORI -->
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                DATASET PENELITIAN
+            </span>
+
+            <h2>
+                Empat kategori gambar.
+            </h2>
+
+            <p>
+                Model menggunakan empat label
+                dalam dataset penelitian.
+            </p>
+
+        </div>
+
+
+        <div class="category-grid">
+
+            <article class="category-card">
+
+                <span class="category-number">N</span>
+
+                <h3>Normal</h3>
+
+                <p>
+                    Gambar yang diberi label
+                    kulit normal pada dataset.
+                </p>
+
+            </article>
+
+
+            <article class="category-card">
+
+                <span class="category-number">01</span>
+
+                <h3>Level 1</h3>
+
+                <p>
+                    Gambar dengan label luka
+                    bakar tingkat satu.
+                </p>
+
+            </article>
+
+
+            <article class="category-card">
+
+                <span class="category-number">02</span>
+
+                <h3>Level 2</h3>
+
+                <p>
+                    Gambar dengan label luka
+                    bakar tingkat dua.
+                </p>
+
+            </article>
+
+
+            <article class="category-card">
+
+                <span class="category-number">03</span>
+
+                <h3>Level 3</h3>
+
+                <p>
+                    Gambar dengan label luka
+                    bakar tingkat tiga.
+                </p>
+
+            </article>
+
+        </div>
+
+
+        <div class="notice">
+
+            <strong>Perlu diketahui:</strong>
+            Label dataset tidak berarti model
+            mampu memastikan kedalaman luka
+            secara klinis. Luka bakar dapat
+            memiliki kedalaman campuran
+            dan membutuhkan pemeriksaan langsung.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ALUR KERJA -->
+<section class="section section-muted">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                ALUR SISTEM
+            </span>
+
+            <h2>
+                Bagaimana sistem bekerja?
+            </h2>
+
+        </div>
+
+
+        <div class="simple-steps">
+
+            <article class="simple-step">
+
+                <span class="simple-step-number">
+                    01
+                </span>
+
+                <h3>Input Foto</h3>
+
+                <p>
+                    Pengguna mengunggah gambar
+                    atau mengambil foto
+                    menggunakan kamera.
+                </p>
+
+            </article>
+
+
+            <article class="simple-step">
+
+                <span class="simple-step-number">
+                    02
+                </span>
+
+                <h3>Praproses dan CNN</h3>
+
+                <p>
+                    Gambar disiapkan sesuai
+                    kebutuhan model lalu
+                    diproses oleh CNN.
+                </p>
+
+            </article>
+
+
+            <article class="simple-step">
+
+                <span class="simple-step-number">
+                    03
+                </span>
+
+                <h3>Hasil dan Edukasi</h3>
+
+                <p>
+                    Prediksi ditampilkan
+                    bersama edukasi
+                    pertolongan pertama.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- BATASAN PENELITIAN -->
+<section class="section">
+
+    <div class="container">
+
+        <div class="research-limit">
+
+            <div class="research-limit-symbol"
+                 aria-hidden="true">
+                !
+            </div>
+
+            <div>
+
+                <span class="section-eyebrow">
+                    BATASAN SISTEM
+                </span>
+
+                <h2>
+                    AI membantu penelitian,
+                    bukan menggantikan dokter.
+                </h2>
+
+                <p>
+                    Hasil model dipengaruhi
+                    pencahayaan, kualitas foto,
+                    latar belakang, variasi
+                    karakteristik kulit,
+                    dan kualitas dataset.
+                </p>
+
+                <p>
+                    Model belum dapat digunakan
+                    untuk menentukan diagnosis
+                    maupun penanganan medis
+                    secara mandiri.
+                </p>
+
+                <a
+                    href="{{ url_for('edukasi') }}"
+                    class="btn-outline"
+                >
+                    Baca Panduan Edukasi
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CTA -->
+<section class="cta-section">
+
+    <div class="container cta-content">
+
+        <span class="section-eyebrow">
+            COBA FITUR UTAMA
+        </span>
+
+        <h2>
+            Ingin melihat cara kerjanya?
+        </h2>
+
+        <p>
+            Gunakan foto untuk mencoba
+            prediksi CNN.
+        </p>
+
+        <a
+            href="{{ url_for('deteksi') }}"
+            class="btn-primary"
+        >
+            Mulai Deteksi
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

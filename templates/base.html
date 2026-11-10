@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="BurnScan - Platform penelitian klasifikasi citra luka bakar menggunakan CNN serta edukasi pertolongan pertama."
+    >
+
+    <meta name="theme-color" content="#163300">
+
+    <title>
+        {% block title %}BurnScan{% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- NAVIGASI -->
+    <header class="site-header">
+
+        <nav class="navbar" aria-label="Navigasi utama">
+
+            <a
+                href="{{ url_for('home') }}"
+                class="logo"
+                aria-label="BurnScan - Beranda"
+            >
+                <span class="brand-mark" aria-hidden="true">+</span>
+                BurnScan
+            </a>
+
+            <button
+                type="button"
+                class="mobile-menu-toggle"
+                id="menuToggle"
+                aria-controls="primaryNavigation"
+                aria-expanded="false"
+            >
+                <span aria-hidden="true">☰</span>
+                <span>Menu</span>
+            </button>
+
+            <ul class="nav-links" id="primaryNavigation">
+
+                <li>
+                    <a
+                        href="{{ url_for('home') }}"
+                        class="{% if request.endpoint == 'home' %}active{% endif %}"
+                        {% if request.endpoint == 'home' %}aria-current="page"{% endif %}
+                    >
+                        Beranda
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="{{ url_for('tentang') }}"
+                        class="{% if request.endpoint == 'tentang' %}active{% endif %}"
+                        {% if request.endpoint == 'tentang' %}aria-current="page"{% endif %}
+                    >
+                        Tentang
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="{{ url_for('edukasi') }}"
+                        class="{% if request.endpoint == 'edukasi' %}active{% endif %}"
+                        {% if request.endpoint == 'edukasi' %}aria-current="page"{% endif %}
+                    >
+                        Edukasi
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        href="{{ url_for('deteksi') }}"
+                        class="nav-cta {% if request.endpoint == 'deteksi' %}active{% endif %}"
+                        {% if request.endpoint == 'deteksi' %}aria-current="page"{% endif %}
+                    >
+                        Mulai Deteksi
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </header>
+
+
+    <!-- KONTEN HALAMAN -->
+    <main id="main-content">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <div class="container footer-content">
+
+            <div class="footer-top">
+
+                <div class="footer-brand">
+
+                    <h2>BurnScan</h2>
+
+                    <p>
+                        Teknologi Convolutional Neural
+                        Network (CNN) untuk penelitian
+                        serta edukasi pertolongan
+                        pertama luka bakar.
+                    </p>
+
+                </div>
+
+                <div class="footer-navigation">
+
+                    <h3>Jelajahi</h3>
+
+                    <a href="{{ url_for('home') }}">
+                        Beranda
+                    </a>
+
+                    <a href="{{ url_for('tentang') }}">
+                        Tentang Aplikasi
+                    </a>
+
+                    <a href="{{ url_for('deteksi') }}">
+                        Deteksi Foto
+                    </a>
+
+                    <a href="{{ url_for('edukasi') }}">
+                        Edukasi
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+
+                <p>
+                    © 2026 BurnScan —
+                    Capstone Project.
+                </p>
+
+                <p>
+                    Prototipe penelitian dan edukasi.
+                    Bukan alat diagnosis medis.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script>
+        const menuToggle =
+            document.getElementById("menuToggle");
+
+        const navigation =
+            document.getElementById("primaryNavigation");
+
+        if (menuToggle && navigation) {
+
+            menuToggle.addEventListener("click", () => {
+
+                const isOpen =
+                    navigation.classList.toggle("is-open");
+
+                menuToggle.setAttribute(
+                    "aria-expanded",
+                    String(isOpen)
+                );
+
+            });
+
+            navigation.querySelectorAll("a").forEach(link => {
+
+                link.addEventListener("click", () => {
+
+                    navigation.classList.remove("is-open");
+
+                    menuToggle.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                });
+
+            });
+
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

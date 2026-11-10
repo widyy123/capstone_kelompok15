@@ -1,0 +1,476 @@
+{% extends "base.html" %}
+
+{% block title %}
+Beranda | BurnScan
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="home-hero">
+
+    <div class="container">
+
+        <div class="home-hero-layout">
+
+            <div class="home-hero-text">
+
+                <span class="section-eyebrow">
+                    PLATFORM PENELITIAN BERBASIS AI
+                </span>
+
+                <h1>
+                    Periksa foto.
+                    <span>Pahami hasilnya.</span>
+                </h1>
+
+                <p class="hero-description">
+                    BurnScan membantu menganalisis
+                    gambar menggunakan teknologi
+                    Convolutional Neural Network (CNN).
+                </p>
+
+                <p class="hero-support">
+                    Unggah foto atau gunakan kamera,
+                    lihat prediksi AI, dan dapatkan
+                    edukasi pertolongan pertama
+                    dalam satu halaman.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="{{ url_for('deteksi') }}"
+                        class="btn-primary"
+                    >
+                        Mulai Deteksi
+                        <span aria-hidden="true">→</span>
+                    </a>
+
+                    <a
+                        href="{{ url_for('tentang') }}"
+                        class="text-button"
+                    >
+                        Pelajari Aplikasi
+                    </a>
+
+                </div>
+
+                <p class="hero-disclaimer">
+                    Hasil AI hanya untuk penelitian
+                    dan edukasi, bukan diagnosis medis.
+                </p>
+
+            </div>
+
+
+            <!-- ILUSTRASI SISTEM -->
+            <div class="hero-illustration">
+
+                <div class="hero-demo-card">
+
+                    <div class="demo-card-top">
+
+                        <span class="demo-brand">
+                            + BurnScan
+                        </span>
+
+                        <span class="demo-status">
+                            CNN
+                        </span>
+
+                    </div>
+
+                    <div class="demo-center">
+
+                        <div class="demo-icon"
+                             aria-hidden="true">
+                            ◎
+                        </div>
+
+                        <h2>
+                            Analisis Foto
+                        </h2>
+
+                        <p>
+                            Satu foto.
+                            Satu proses.
+                            Informasi lebih jelas.
+                        </p>
+
+                    </div>
+
+                    <div class="demo-steps">
+
+                        <div>
+                            <strong>01</strong>
+                            <span>Pilih Foto</span>
+                        </div>
+
+                        <div>
+                            <strong>02</strong>
+                            <span>Analisis CNN</span>
+                        </div>
+
+                        <div>
+                            <strong>03</strong>
+                            <span>Edukasi</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CARA KERJA -->
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                MUDAH DIGUNAKAN
+            </span>
+
+            <h2>
+                Hanya tiga langkah.
+            </h2>
+
+            <p>
+                Kamu tidak perlu memahami
+                teknologi AI untuk menggunakan
+                fitur utama BurnScan.
+            </p>
+
+        </div>
+
+
+        <div class="simple-steps">
+
+            <article class="simple-step">
+
+                <span class="simple-step-number">
+                    01
+                </span>
+
+                <div class="simple-step-icon"
+                     aria-hidden="true">
+                    ↑
+                </div>
+
+                <h3>Pilih Foto</h3>
+
+                <p>
+                    Unggah foto dari perangkat
+                    atau ambil gambar menggunakan
+                    kamera secara langsung.
+                </p>
+
+            </article>
+
+
+            <article class="simple-step">
+
+                <span class="simple-step-number">
+                    02
+                </span>
+
+                <div class="simple-step-icon"
+                     aria-hidden="true">
+                    ◎
+                </div>
+
+                <h3>Analisis AI</h3>
+
+                <p>
+                    Sistem memproses citra
+                    dan menghasilkan prediksi
+                    kategori menggunakan CNN.
+                </p>
+
+            </article>
+
+
+            <article class="simple-step">
+
+                <span class="simple-step-number">
+                    03
+                </span>
+
+                <div class="simple-step-icon"
+                     aria-hidden="true">
+                    +
+                </div>
+
+                <h3>Baca Hasil dan Edukasi</h3>
+
+                <p>
+                    Lihat hasil penelitian dan
+                    panduan pertolongan pertama
+                    tanpa harus membuka halaman lain.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- FITUR UTAMA -->
+<section class="section section-muted">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="section-eyebrow">
+                FITUR BURNSCAN
+            </span>
+
+            <h2>
+                Semua yang dibutuhkan,
+                lebih tertata.
+            </h2>
+
+            <p>
+                Fitur utama dirancang untuk
+                memudahkan analisis gambar
+                sekaligus mendukung pembelajaran.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+            <article class="feature-card">
+
+                <div class="feature-icon"
+                     aria-hidden="true">
+                    ▣
+                </div>
+
+                <h3>Deteksi Foto</h3>
+
+                <p>
+                    Analisis menggunakan foto
+                    dari perangkat atau kamera.
+                </p>
+
+                <a href="{{ url_for('deteksi') }}">
+                    Buka Deteksi
+                </a>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <div class="feature-icon"
+                     aria-hidden="true">
+                    AI
+                </div>
+
+                <h3>Klasifikasi CNN</h3>
+
+                <p>
+                    Pelajari cara model CNN
+                    mengenali kategori pada gambar.
+                </p>
+
+                <a href="{{ url_for('tentang') }}">
+                    Pelajari CNN
+                </a>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <div class="feature-icon"
+                     aria-hidden="true">
+                    +
+                </div>
+
+                <h3>Edukasi</h3>
+
+                <p>
+                    Pelajari pertolongan pertama
+                    dan tanda bahaya luka bakar.
+                </p>
+
+                <a href="{{ url_for('edukasi') }}">
+                    Baca Edukasi
+                </a>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PENJELASAN TEKNOLOGI -->
+<section class="section">
+
+    <div class="container">
+
+        <div class="technology-layout">
+
+            <div class="technology-heading">
+
+                <span class="section-eyebrow">
+                    TEKNOLOGI DI BALIK SISTEM
+                </span>
+
+                <h2>
+                    Convolutional Neural Network.
+                    <span>Satu alur analisis.</span>
+                </h2>
+
+                <p>
+                    Gambar disiapkan terlebih dahulu,
+                    kemudian CNN memprosesnya
+                    berdasarkan pola yang dipelajari
+                    selama pelatihan.
+                </p>
+
+                <a
+                    href="{{ url_for('tentang') }}"
+                    class="text-button"
+                >
+                    Pelajari Cara Kerja
+                </a>
+
+            </div>
+
+
+            <div class="technology-cards">
+
+                <article class="technology-card">
+
+                    <span>01 / PENGOLAHAN CITRA</span>
+
+                    <h3>Praproses Citra</h3>
+
+                    <p>
+                        Menyiapkan gambar agar
+                        sesuai dengan masukan
+                        yang dibutuhkan model.
+                    </p>
+
+                </article>
+
+
+                <article class="technology-card dark">
+
+                    <span>02 / DEEP LEARNING</span>
+
+                    <h3>CNN</h3>
+
+                    <p>
+                        Menghasilkan prediksi
+                        berdasarkan fitur visual
+                        dalam data pelatihan.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- KESELAMATAN -->
+<section class="section section-muted">
+
+    <div class="container">
+
+        <div class="safety-strip">
+
+            <div class="safety-symbol"
+                 aria-hidden="true">
+                !
+            </div>
+
+            <div>
+
+                <h2>
+                    Kesehatan tetap prioritas.
+                </h2>
+
+                <p>
+                    Prediksi AI tidak dapat
+                    memastikan kedalaman atau
+                    tingkat keparahan luka bakar
+                    hanya berdasarkan foto.
+                    Jangan menunda pertolongan
+                    pertama atau pemeriksaan medis.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('edukasi') }}"
+                class="btn-outline"
+            >
+                Baca Panduan
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CTA AKHIR -->
+<section class="cta-section">
+
+    <div class="container cta-content">
+
+        <span class="section-eyebrow">
+            MULAI SEKARANG
+        </span>
+
+        <h2>
+            Siap mencoba BurnScan?
+        </h2>
+
+        <p>
+            Pilih foto, lakukan analisis,
+            dan baca edukasinya dalam
+            satu halaman yang sederhana.
+        </p>
+
+        <a
+            href="{{ url_for('deteksi') }}"
+            class="btn-primary"
+        >
+            Mulai Deteksi
+            <span aria-hidden="true">→</span>
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}

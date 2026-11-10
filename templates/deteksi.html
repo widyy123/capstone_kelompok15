@@ -1,0 +1,1945 @@
+{% extends "base.html" %}
+
+{% block title %}Deteksi Foto | BurnScan{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --bc-forest: #163300;
+    --bc-lime: #9fe870;
+    --bc-linen: #e2f6d5;
+    --bc-fog: #e8ebe6;
+    --bc-border: #d6ded1;
+    --bc-muted: #6a6c6a;
+}
+
+.bc-shell {
+    max-width: 900px;
+    margin: auto;
+}
+
+.bc-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 24px 0;
+}
+
+.bc-method {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-height: 125px;
+    padding: 22px;
+    background: var(--bc-fog);
+    border: 2px solid transparent;
+    border-radius: 18px;
+    color: var(--bc-forest);
+    text-align: left;
+    cursor: pointer;
+}
+
+.bc-method:hover,
+.bc-method:focus-visible {
+    background: var(--bc-linen);
+    border-color: var(--bc-forest);
+}
+
+.bc-method-icon {
+    font-size: 29px;
+}
+
+.bc-method strong {
+    font-size: 17px;
+}
+
+.bc-method small,
+.bc-status {
+    color: var(--bc-muted);
+    font-size: 13px;
+}
+
+.bc-file {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.bc-preview {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f7f9f5;
+    border: 1px solid var(--bc-border);
+    border-radius: 16px;
+}
+
+.bc-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.bc-preview img {
+    display: block;
+    width: 100%;
+    max-height: 400px;
+    margin-top: 14px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.bc-status {
+    margin: 13px 0;
+    overflow-wrap: anywhere;
+}
+
+.bc-submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 55px;
+}
+
+.bc-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: bc-spin .8s linear infinite;
+}
+
+@keyframes bc-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* KAMERA LAYAR PENUH */
+
+.bc-camera {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    background: #050805;
+    color: white;
+    overflow: hidden;
+}
+
+.bc-camera[hidden],
+[hidden] {
+    display: none !important;
+}
+
+body.bc-camera-open {
+    overflow: hidden;
+}
+
+.bc-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #050805;
+}
+
+.bc-camera-top {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    background: rgba(0, 0, 0, .75);
+}
+
+.bc-camera-top strong {
+    color: white;
+}
+
+.bc-close {
+    width: 48px;
+    height: 48px;
+    border: 1px solid white;
+    border-radius: 50%;
+    background: #1d2918;
+    color: white;
+    font-size: 22px;
+}
+
+.bc-camera-bottom {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 20px 18px max(28px, env(safe-area-inset-bottom));
+    background: rgba(0, 0, 0, .8);
+    text-align: center;
+}
+
+.bc-camera-bottom p {
+    color: var(--bc-linen);
+    font-size: 14px;
+}
+
+.bc-shutter {
+    display: grid;
+    place-items: center;
+    width: 82px;
+    height: 82px;
+    margin: 15px auto;
+    background: var(--bc-lime);
+    border: 5px solid white;
+    border-radius: 50%;
+}
+
+.bc-shutter::after {
+    content: "";
+    width: 46px;
+    height: 46px;
+    background: var(--bc-forest);
+    border-radius: 50%;
+}
+
+.bc-camera-error {
+    padding: 12px;
+    background: #fff0ef;
+    color: #872126;
+    border-radius: 10px;
+}
+
+/* HASIL CNN */
+
+.bc-result-photo {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f7f9f5;
+    border-radius: 18px;
+}
+
+.bc-result-photo img {
+    display: block;
+    width: 100%;
+    max-height: 460px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.bc-prediction {
+    margin: 24px 0;
+    padding: 28px;
+    background: var(--bc-forest);
+    color: white;
+    border-radius: 20px;
+}
+
+.bc-prediction h3 {
+    margin: 12px 0;
+    color: var(--bc-lime);
+    font-size: clamp(30px, 5vw, 46px);
+}
+
+.bc-prediction p,
+.bc-prediction small {
+    color: var(--bc-linen);
+}
+
+/* EDUKASI SETIAP LEVEL */
+
+.bc-aid {
+    margin-top: 28px;
+    padding-top: 26px;
+    border-top: 1px solid var(--bc-border);
+}
+
+.bc-aid h3 {
+    font-size: 26px;
+}
+
+.bc-level-info {
+    margin: 20px 0;
+    padding: 22px;
+    border-radius: 15px;
+    background: var(--bc-linen);
+    border-left: 5px solid #054d28;
+}
+
+.bc-level-info h4 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+.bc-level-info p {
+    margin: 0;
+}
+
+.bc-level-info.warning {
+    background: #fff4e5;
+    border-left-color: #a66a20;
+}
+
+.bc-level-info.urgent {
+    background: #fff0ef;
+    border-left-color: #b4232c;
+}
+
+.bc-section-title {
+    font-size: 20px;
+    margin: 28px 0 14px;
+}
+
+.bc-aid-steps {
+    list-style: none;
+    padding: 0;
+    counter-reset: bc-step;
+}
+
+.bc-aid-steps li {
+    position: relative;
+    counter-increment: bc-step;
+    padding: 17px 17px 17px 58px;
+    margin: 12px 0;
+    border: 1px solid var(--bc-border);
+    border-radius: 13px;
+    line-height: 1.75;
+}
+
+.bc-aid-steps li::before {
+    content: counter(bc-step);
+    position: absolute;
+    left: 17px;
+    top: 18px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bc-linen);
+    color: var(--bc-forest);
+    font-weight: 800;
+}
+
+.bc-aid-steps strong {
+    display: block;
+    color: var(--bc-forest);
+}
+
+.bc-alert {
+    margin: 20px 0;
+    padding: 20px;
+    background: #fff4e5;
+    border-left: 4px solid #a66a20;
+    border-radius: 12px;
+}
+
+.bc-alert.urgent {
+    background: #fff0ef;
+    border-left-color: #b4232c;
+}
+
+.bc-alert h4 {
+    margin: 0 0 9px;
+    font-size: 18px;
+}
+
+.bc-alert p {
+    margin: 0;
+}
+
+.bc-level-actions {
+    margin: 22px 0;
+    padding: 20px;
+    border: 1px solid var(--bc-border);
+    border-radius: 14px;
+    background: #f7f9f5;
+}
+
+.bc-level-actions h4 {
+    margin: 0 0 12px;
+}
+
+.bc-level-actions p {
+    margin: 0;
+}
+
+/* UNDUH PNG */
+
+.bc-download {
+    margin: 30px 0;
+    padding: 25px;
+    background: var(--bc-linen);
+    border-radius: 18px;
+    text-align: center;
+}
+
+.bc-download .btn-primary {
+    background: var(--bc-forest);
+    border-color: var(--bc-forest);
+    color: white;
+}
+
+.bc-download .btn-primary:hover {
+    background: #054d28;
+}
+
+@media (max-width: 600px) {
+    .bc-methods {
+        grid-template-columns: 1fr;
+    }
+
+    .bc-preview-head {
+        flex-wrap: wrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bc-spinner {
+        animation: none;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-hero">
+    <div class="container">
+        <span class="tag">BurnScan</span>
+
+        <h1>Deteksi Foto Luka Bakar</h1>
+
+        <p>
+            Unggah foto atau gunakan kamera.
+            Hasil prediksi dan panduan pertolongan pertama
+            akan tampil otomatis.
+        </p>
+    </div>
+</section>
+
+<section class="section detection-section">
+<div class="container bc-shell">
+
+    <!-- FORM -->
+
+    <div class="detection-panel">
+
+        <span class="step-label">LANGKAH 1</span>
+
+        <h2>Pilih sumber foto</h2>
+
+        <p>
+            Gunakan foto yang jelas dengan pencahayaan cukup.
+            Maksimal 5 MB.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for kind, message in messages %}
+                <div class="upload-error" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        {% if error %}
+            <div class="upload-error" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if model_ready is defined and model_ready == false %}
+            <div class="upload-error" role="alert">
+                Model CNN belum tersedia.
+                Periksa terminal Flask.
+            </div>
+        {% endif %}
+
+        <div class="bc-methods">
+
+            <button
+                type="button"
+                class="bc-method"
+                id="choosePhotoButton"
+            >
+                <span class="bc-method-icon" aria-hidden="true">↑</span>
+                <strong>Unggah Foto</strong>
+                <small>Pilih dari perangkat</small>
+            </button>
+
+            <button
+                type="button"
+                class="bc-method"
+                id="openCameraButton"
+            >
+                <span class="bc-method-icon" aria-hidden="true">▣</span>
+                <strong>Ambil Foto dengan Kamera</strong>
+                <small>Kamera terbuka memenuhi layar</small>
+            </button>
+
+        </div>
+
+        <form
+            id="uploadForm"
+            method="POST"
+            action="{{ url_for('deteksi') }}"
+            enctype="multipart/form-data"
+        >
+            <input
+                type="file"
+                id="foto"
+                name="foto"
+                class="bc-file"
+                accept=".jpg,.jpeg,.png,.webp"
+                required
+                aria-label="Pilih foto untuk analisis"
+            >
+
+            <div class="bc-preview" id="previewContainer" hidden>
+
+                <div class="bc-preview-head">
+                    <strong>Pratinjau Foto</strong>
+
+                    <button
+                        type="button"
+                        id="changePhotoButton"
+                        class="text-button"
+                    >
+                        Ganti Foto
+                    </button>
+                </div>
+
+                <img
+                    id="imagePreview"
+                    alt="Pratinjau foto sebelum dianalisis"
+                >
+            </div>
+
+            <p id="fileStatus" class="bc-status" role="status">
+                Belum ada foto dipilih.
+            </p>
+
+            <span class="step-label">LANGKAH 2</span>
+
+            <button
+                type="submit"
+                id="submitButton"
+                class="btn-primary bc-submit"
+                disabled
+            >
+                <span
+                    id="loadingSpinner"
+                    class="bc-spinner"
+                    aria-hidden="true"
+                    hidden
+                ></span>
+
+                <span id="submitText">Analisis Foto</span>
+            </button>
+
+            <p
+                id="analysisStatus"
+                class="bc-status"
+                role="status"
+                aria-live="polite"
+            >
+                Pilih atau ambil foto untuk memulai analisis.
+            </p>
+
+        </form>
+
+        <div class="notice">
+            <strong>Perhatian:</strong>
+            BurnScan adalah prototipe penelitian.
+            Jangan menunda pertolongan medis untuk mengambil foto.
+        </div>
+
+    </div>
+
+
+    <!-- KAMERA FULLSCREEN -->
+
+    <div
+        id="cameraFullscreen"
+        class="bc-camera"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Kamera layar penuh"
+        hidden
+    >
+        <video
+            id="cameraVideo"
+            class="bc-video"
+            autoplay
+            playsinline
+            muted
+            aria-label="Pratinjau kamera"
+        ></video>
+
+        <canvas id="cameraCanvas" hidden></canvas>
+
+        <div class="bc-camera-top">
+            <strong>BurnScan · Kamera</strong>
+
+            <button
+                type="button"
+                id="closeCameraButton"
+                class="bc-close"
+                aria-label="Tutup kamera"
+            >
+                ×
+            </button>
+        </div>
+
+        <div class="bc-camera-bottom">
+            <p>
+                Arahkan kamera ke objek.
+                Tekan tombol bulat untuk mengambil foto.
+            </p>
+
+            <button
+                type="button"
+                id="captureButton"
+                class="bc-shutter"
+                aria-label="Ambil foto"
+                disabled
+            ></button>
+
+            <p
+                id="cameraStatus"
+                role="status"
+                aria-live="polite"
+            >
+                Membuka kamera...
+            </p>
+
+            <div
+                id="cameraError"
+                class="bc-camera-error"
+                role="alert"
+                hidden
+            ></div>
+        </div>
+    </div>
+
+
+    <!-- HASIL ANALISIS -->
+
+    {% if preview %}
+
+        {% if result %}
+            {% set category = result.display
+                | default('', true)
+                | lower
+                | replace('_', ' ')
+                | replace('-', ' ')
+            %}
+        {% else %}
+            {% set category = '' %}
+        {% endif %}
+
+        {% if 'normal' in category %}
+            {% set level = 'normal' %}
+            {% set display_label = 'Normal — Kulit Normal' %}
+        {% elif 'level 1' in category or 'derajat 1' in category %}
+            {% set level = '1' %}
+            {% set display_label = 'Level 1 — Luka Bakar Ringan' %}
+        {% elif 'level 2' in category or 'derajat 2' in category %}
+            {% set level = '2' %}
+            {% set display_label = 'Level 2 — Luka Bakar Sedang' %}
+        {% elif 'level 3' in category or 'derajat 3' in category %}
+            {% set level = '3' %}
+            {% set display_label = 'Level 3 — Luka Bakar Berat' %}
+        {% else %}
+            {% set level = 'unknown' %}
+            {% set display_label = result.display if result else 'Tidak tersedia' %}
+        {% endif %}
+
+        <section
+            class="result-panel"
+            id="hasil-deteksi"
+            tabindex="-1"
+        >
+
+            <div class="section-heading">
+                <span class="tag">Hasil Analisis</span>
+                <h2>Hasil Deteksi Foto</h2>
+
+                <p>
+                    Prediksi model penelitian,
+                    bukan diagnosis medis.
+                </p>
+            </div>
+
+            <!-- FOTO -->
+
+            <div class="bc-result-photo">
+                <h3>Foto yang Dianalisis</h3>
+
+                <img
+                    id="serverResultImage"
+                    src="{{ preview }}"
+                    alt="Foto yang dianalisis model"
+                >
+            </div>
+
+
+            <!-- HASIL CNN -->
+
+            <div class="bc-prediction">
+
+                <small>PREDIKSI MODEL CNN</small>
+
+                <h3 id="resultCategory">
+                    {{ display_label }}
+                </h3>
+
+                {% if result and result.confidence is defined
+                    and result.confidence is not none %}
+
+                    <p>
+                        Skor keluaran model:
+                        <strong id="resultConfidence">
+                            {{ result.confidence }}%
+                        </strong>
+                    </p>
+
+                {% endif %}
+
+                <p>
+                    Kategori Ringan, Sedang, dan Berat
+                    adalah nama tampilan label dataset.
+                    Model tidak dapat memastikan keparahan
+                    atau kedalaman luka secara klinis.
+                </p>
+
+            </div>
+
+
+            <!-- EDUKASI SETIAP LEVEL -->
+
+            <section class="bc-aid" id="educationSection">
+
+                <h3>Edukasi Pertolongan Pertama</h3>
+
+                <p>
+                    Petunjuk berikut terutama berlaku
+                    untuk luka bakar akibat panas.
+                    Tindakan pertama perlu dilakukan
+                    sesuai kondisi korban, bukan
+                    menunggu atau hanya mengandalkan AI.
+                </p>
+
+                {% if level == 'normal' %}
+
+                    <div class="bc-level-info">
+
+                        <h4>Normal — Kulit Normal</h4>
+
+                        <p>
+                            Model mengklasifikasikan foto
+                            sebagai kulit normal. Namun,
+                            hasil ini tidak memastikan
+                            bahwa kulit bebas cedera.
+                        </p>
+
+                    </div>
+
+                    <h4 class="bc-section-title">
+                        Yang Perlu Dilakukan
+                    </h4>
+
+                    <ol class="bc-aid-steps" id="reportAidSteps">
+
+                        <li>
+                            <strong>Periksa keluhan.</strong>
+                            Perhatikan nyeri, rasa panas,
+                            kemerahan, bengkak, atau lepuhan.
+                        </li>
+
+                        <li>
+                            <strong>Jika baru terkena panas, dinginkan.</strong>
+                            Gunakan air sejuk mengalir
+                            selama 20 menit.
+                        </li>
+
+                        <li>
+                            <strong>Jangan abaikan gejala.</strong>
+                            Jika ada luka atau keluhan yang
+                            memburuk, cari pemeriksaan medis.
+                        </li>
+
+                        <li>
+                            <strong>Jaga kebersihan kulit.</strong>
+                            Hindari menggosok atau mengoles
+                            bahan yang dapat menyebabkan iritasi.
+                        </li>
+
+                    </ol>
+
+                    <div class="bc-level-actions">
+                        <h4>Kapan Perlu Pemeriksaan?</h4>
+
+                        <p>
+                            Jika ada nyeri menetap, lepuhan,
+                            perubahan kulit, atau riwayat
+                            terkena panas, konsultasikan
+                            kepada tenaga kesehatan meskipun
+                            model menunjukkan Normal.
+                        </p>
+                    </div>
+
+                {% elif level == '1' %}
+
+                    <div class="bc-level-info">
+
+                        <h4>Level 1 — Luka Bakar Ringan</h4>
+
+                        <p>
+                            Kategori ini dikaitkan dengan
+                            gambaran luka bakar superfisial,
+                            yang secara klinis dapat berupa
+                            kulit kemerahan, kering, dan nyeri.
+                            Foto saja tidak cukup untuk
+                            memastikan kedalaman.
+                        </p>
+
+                    </div>
+
+                    <h4 class="bc-section-title">
+                        Yang Perlu Dilakukan
+                    </h4>
+
+                    <ol class="bc-aid-steps" id="reportAidSteps">
+
+                        <li>
+                            <strong>Hentikan paparan panas.</strong>
+                            Pindahkan korban dari sumber panas
+                            dan pastikan tempatnya aman.
+                        </li>
+
+                        <li>
+                            <strong>Dinginkan luka.</strong>
+                            Alirkan air sejuk pada area cedera
+                            selama 20 menit. Jangan gunakan es.
+                        </li>
+
+                        <li>
+                            <strong>Lepaskan benda ketat.</strong>
+                            Jika aman, lepaskan cincin,
+                            jam tangan, atau pakaian di sekitar
+                            luka yang tidak melekat.
+                        </li>
+
+                        <li>
+                            <strong>Lindungi kulit.</strong>
+                            Setelah didinginkan, gunakan
+                            penutup bersih yang tidak melekat
+                            jika diperlukan.
+                        </li>
+
+                        <li>
+                            <strong>Pantau perkembangan.</strong>
+                            Perhatikan apakah nyeri bertambah,
+                            muncul lepuhan, kemerahan meluas,
+                            atau timbul tanda infeksi.
+                        </li>
+
+                    </ol>
+
+                    <div class="bc-level-actions">
+                        <h4>Perawatan dan Pemeriksaan</h4>
+
+                        <p>
+                            Luka superfisial yang benar-benar
+                            kecil dapat membaik tanpa perawatan
+                            khusus. Jika luka luas, berada
+                            pada area sensitif, atau muncul
+                            lepuhan maupun gejala memburuk,
+                            periksakan ke tenaga kesehatan.
+                        </p>
+                    </div>
+
+                {% elif level == '2' %}
+
+                    <div class="bc-level-info warning">
+
+                        <h4>Level 2 — Luka Bakar Sedang</h4>
+
+                        <p>
+                            Kategori ini dikaitkan dengan
+                            gambaran luka bakar ketebalan
+                            parsial. Secara klinis, luka
+                            tersebut bisa disertai lepuhan,
+                            kulit kemerahan, dan nyeri.
+                            Kedalaman sebenarnya perlu
+                            dinilai oleh tenaga medis.
+                        </p>
+
+                    </div>
+
+                    <h4 class="bc-section-title">
+                        Yang Perlu Dilakukan
+                    </h4>
+
+                    <ol class="bc-aid-steps" id="reportAidSteps">
+
+                        <li>
+                            <strong>Hentikan paparan panas.</strong>
+                            Pastikan korban tidak lagi terkena
+                            sumber panas dan area sekitar aman.
+                        </li>
+
+                        <li>
+                            <strong>Dinginkan luka.</strong>
+                            Gunakan air mengalir sejuk selama
+                            20 menit, tanpa menggunakan es.
+                        </li>
+
+                        <li>
+                            <strong>Jangan pecahkan lepuhan.</strong>
+                            Biarkan lepuhan tetap utuh.
+                            Hindari mengelupas kulit yang rusak.
+                        </li>
+
+                        <li>
+                            <strong>Tutup luka secara longgar.</strong>
+                            Setelah pendinginan, gunakan
+                            balutan steril yang tidak melekat
+                            atau penutup bersih yang sesuai.
+                            Jangan membalut terlalu ketat.
+                        </li>
+
+                        <li>
+                            <strong>Periksakan ke tenaga medis.</strong>
+                            Pemeriksaan diperlukan untuk
+                            menilai lokasi, luas, kedalaman,
+                            dan kebutuhan perawatan luka.
+                        </li>
+
+                    </ol>
+
+                    <div class="bc-level-actions">
+                        <h4>Penanganan Lanjutan</h4>
+
+                        <p>
+                            Tenaga kesehatan dapat menentukan
+                            kebutuhan pembersihan luka,
+                            jenis balutan, pengendalian nyeri,
+                            evaluasi tetanus, serta tindak
+                            lanjut. Jangan memilih terapi
+                            khusus hanya dari hasil CNN.
+                        </p>
+                    </div>
+
+                    <div class="bc-alert">
+                        <h4>Perlu Perhatian Lebih</h4>
+
+                        <p>
+                            Segera cari pertolongan jika
+                            luka luas, tampak dalam,
+                            nyeri tidak terkendali,
+                            atau mengenai wajah, tangan,
+                            kaki, genitalia, atau sendi besar.
+                        </p>
+                    </div>
+
+                {% elif level == '3' %}
+
+                    <div class="bc-level-info urgent">
+
+                        <h4>Level 3 — Luka Bakar Berat</h4>
+
+                        <p>
+                            Kategori ini dikaitkan dengan
+                            gambaran luka bakar ketebalan
+                            penuh. Luka dalam secara klinis
+                            dapat tampak putih, cokelat,
+                            kehitaman, atau seperti kulit
+                            mengeras. Area tersebut kadang
+                            tidak terasa sangat nyeri.
+                        </p>
+
+                    </div>
+
+                    <div class="bc-alert urgent">
+
+                        <h4>Segera Cari Pertolongan Darurat</h4>
+
+                        <p>
+                            Jika luka tampak dalam atau serius,
+                            segera hubungi layanan darurat
+                            atau menuju IGD. Jangan menunda
+                            bantuan untuk mengambil foto atau
+                            menjalankan analisis ulang.
+                        </p>
+
+                    </div>
+
+                    <h4 class="bc-section-title">
+                        Yang Perlu Dilakukan
+                    </h4>
+
+                    <ol class="bc-aid-steps" id="reportAidSteps">
+
+                        <li>
+                            <strong>Pastikan keselamatan korban.</strong>
+                            Hentikan paparan sumber panas dan
+                            pindahkan korban ke lokasi aman
+                            jika memungkinkan.
+                        </li>
+
+                        <li>
+                            <strong>Segera cari bantuan darurat.</strong>
+                            Hubungi layanan darurat atau
+                            menuju IGD. Bila ada orang lain,
+                            minta bantuan sambil melakukan
+                            pertolongan pertama.
+                        </li>
+
+                        <li>
+                            <strong>Dinginkan bagian luka bila aman.</strong>
+                            Untuk cedera akibat panas,
+                            gunakan air sejuk mengalir.
+                            Hindari pendinginan luas yang
+                            menyebabkan tubuh kedinginan,
+                            terutama pada anak-anak atau
+                            luka bakar yang sangat luas.
+                        </li>
+
+                        <li>
+                            <strong>Jangan menarik pakaian melekat.</strong>
+                            Lepaskan hanya benda ketat atau
+                            pakaian di sekitar luka yang
+                            tidak menempel pada kulit.
+                        </li>
+
+                        <li>
+                            <strong>Lindungi luka.</strong>
+                            Tutup secara longgar dengan
+                            penutup bersih yang tidak melekat.
+                            Jangan mengoles bahan rumahan
+                            atau mengelupas jaringan luka.
+                        </li>
+
+                        <li>
+                            <strong>Pantau kondisi korban.</strong>
+                            Perhatikan pernapasan dan kesadaran.
+                            Jika ada gangguan pernapasan
+                            atau tidak sadar, hubungi
+                            bantuan darurat segera.
+                        </li>
+
+                    </ol>
+
+                    <div class="bc-level-actions">
+                        <h4>Penanganan di Rumah Sakit</h4>
+
+                        <p>
+                            Penanganan dapat melibatkan
+                            penilaian luas luka, pemantauan
+                            kondisi umum, pengelolaan nyeri,
+                            perawatan luka khusus, dan
+                            pemeriksaan oleh tim luka bakar.
+                            Sebagian kasus memerlukan terapi
+                            cairan atau tindakan bedah,
+                            berdasarkan penilaian dokter.
+                        </p>
+                    </div>
+
+                {% else %}
+
+                    <div class="bc-level-info warning">
+
+                        <h4>Kategori Belum Dikenali</h4>
+
+                        <p>
+                            Hasil CNN belum dapat dipetakan
+                            ke panduan kategori.
+                            Tetap lakukan pertolongan pertama
+                            sesuai jenis dan kondisi cedera.
+                        </p>
+
+                    </div>
+
+                    <ol class="bc-aid-steps" id="reportAidSteps">
+                        <li>
+                            <strong>Hentikan sumber panas.</strong>
+                            Pastikan korban berada di tempat aman.
+                        </li>
+                        <li>
+                            <strong>Dinginkan luka bakar akibat panas.</strong>
+                            Gunakan air sejuk mengalir selama 20 menit.
+                        </li>
+                        <li>
+                            <strong>Lindungi luka.</strong>
+                            Tutup longgar menggunakan penutup bersih
+                            yang tidak melekat.
+                        </li>
+                        <li>
+                            <strong>Cari pertolongan medis.</strong>
+                            Terutama jika luka dalam, luas,
+                            atau memiliki tanda bahaya.
+                        </li>
+                    </ol>
+
+                {% endif %}
+
+
+                <!-- LARANGAN UNIVERSAL -->
+
+                <div class="bc-alert" id="reportAvoid">
+
+                    <h4>Yang Harus Dihindari</h4>
+
+                    <p>
+                        Jangan gunakan es, pasta gigi,
+                        mentega, minyak, atau bahan rumahan
+                        lainnya. Jangan memecahkan lepuhan,
+                        mengelupas kulit yang rusak,
+                        ataupun menarik pakaian yang
+                        menempel pada luka.
+                    </p>
+
+                </div>
+
+
+                <!-- TANDA BAHAYA UNIVERSAL -->
+
+                <div class="bc-alert urgent" id="reportWarning">
+
+                    <h4>Kapan Harus Segera ke IGD?</h4>
+
+                    <p>
+                        Segera cari bantuan untuk luka yang
+                        luas atau dalam, luka pada wajah,
+                        tangan, kaki, alat kelamin, maupun
+                        sendi besar, serta cedera karena
+                        listrik atau bahan kimia.
+                    </p>
+
+                    <p>
+                        Gangguan pernapasan, dugaan
+                        menghirup asap, penurunan kesadaran,
+                        atau nyeri berat juga memerlukan
+                        pertolongan segera. Anak dengan
+                        luka bakar perlu nasihat medis.
+                    </p>
+
+                </div>
+
+                <p class="bc-model-note">
+                    <strong>Catatan medis:</strong>
+                    Kedalaman luka dapat bercampur.
+                    Istilah Ringan, Sedang, dan Berat
+                    pada aplikasi adalah nama kategori
+                    model, bukan hasil diagnosis klinis.
+                    Penanganan medis tidak boleh
+                    ditentukan hanya dari foto.
+                </p>
+
+                <p class="bc-model-note">
+                    Referensi:
+                    <a href="https://www.nhs.uk/conditions/burns-and-scalds/"
+                       target="_blank" rel="noopener noreferrer">NHS</a> ·
+                    <a href="https://www.sja.org.uk/first-aid-advice/burns-and-scalds/"
+                       target="_blank" rel="noopener noreferrer">St John Ambulance</a> ·
+                    <a href="https://www.ameriburn.org/burn-care-team/resources/guidelines-for-burn-patient-referral"
+                       target="_blank" rel="noopener noreferrer">American Burn Association</a>
+                </p>
+
+            </section>
+
+
+            <!-- UNDUH LAPORAN PNG -->
+
+            {% if result %}
+            <div class="bc-download">
+
+                <h3>Simpan Hasil Deteksi</h3>
+
+                <p>
+                    Unduh laporan PNG berisi
+                    foto, prediksi, edukasi sesuai
+                    kategori, dan peringatan medis.
+                </p>
+
+                <button
+                    type="button"
+                    id="downloadResultButton"
+                    class="btn-primary"
+                >
+                    Unduh Hasil Deteksi
+                </button>
+
+                <p
+                    id="downloadStatus"
+                    class="bc-status"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+
+                <small>
+                    Hasil penelitian, bukan
+                    surat diagnosis medis.
+                </small>
+
+            </div>
+            {% endif %}
+
+
+            <div class="result-actions">
+                <a href="{{ url_for('deteksi') }}" class="btn-primary">
+                    Deteksi Ulang
+                </a>
+
+                <a href="{{ url_for('home') }}" class="btn-outline">
+                    Kembali ke Beranda
+                </a>
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</div>
+</section>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(() => {
+    "use strict";
+
+    const $ = id => document.getElementById(id);
+
+    const fileInput = $("foto");
+    const form = $("uploadForm");
+    const previewBox = $("previewContainer");
+    const previewImage = $("imagePreview");
+    const fileStatus = $("fileStatus");
+    const submitButton = $("submitButton");
+    const submitText = $("submitText");
+    const spinner = $("loadingSpinner");
+    const analysisStatus = $("analysisStatus");
+
+    const modal = $("cameraFullscreen");
+    const video = $("cameraVideo");
+    const cameraCanvas = $("cameraCanvas");
+    const captureButton = $("captureButton");
+    const closeButton = $("closeCameraButton");
+    const cameraStatus = $("cameraStatus");
+    const cameraError = $("cameraError");
+
+    const MAX_SIZE = 5 * 1024 * 1024;
+    const ALLOWED = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    let stream = null;
+    let requestId = 0;
+    let objectUrl = null;
+    let photoSource = "upload";
+    let submitting = false;
+    let previousFocus = null;
+
+
+    // =====================================
+    // KAMERA
+    // =====================================
+
+    function stopCamera() {
+        requestId++;
+
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+            stream = null;
+        }
+
+        video.pause();
+        video.srcObject = null;
+        captureButton.disabled = true;
+    }
+
+    function closeCamera(restoreFocus = true) {
+        stopCamera();
+        modal.hidden = true;
+        document.body.classList.remove("bc-camera-open");
+
+        if (restoreFocus && previousFocus &&
+            document.contains(previousFocus)) {
+            previousFocus.focus();
+        }
+    }
+
+    async function openCamera() {
+        previousFocus = document.activeElement;
+        photoSource = "camera";
+
+        modal.hidden = false;
+        document.body.classList.add("bc-camera-open");
+        closeButton.focus();
+
+        cameraError.hidden = true;
+        cameraStatus.textContent = "Membuka kamera...";
+
+        stopCamera();
+        const current = requestId;
+
+        if (!navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia) {
+
+            cameraError.textContent =
+                "Kamera membutuhkan localhost atau HTTPS.";
+            cameraError.hidden = false;
+            cameraStatus.textContent = "";
+            return;
+        }
+
+        try {
+            const newStream =
+                await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: {
+                        facingMode: {
+                            ideal: "environment"
+                        }
+                    }
+                });
+
+            if (current !== requestId || modal.hidden) {
+                newStream.getTracks().forEach(t => t.stop());
+                return;
+            }
+
+            stream = newStream;
+            video.srcObject = stream;
+
+            await video.play();
+
+            if (current !== requestId) return;
+
+            captureButton.disabled = false;
+            cameraStatus.textContent =
+                "Kamera siap. Ambil foto sekarang.";
+
+        } catch (error) {
+            console.error(error);
+
+            if (current !== requestId) return;
+
+            stopCamera();
+
+            cameraError.textContent =
+                "Kamera gagal dibuka. Periksa izin browser.";
+            cameraError.hidden = false;
+            cameraStatus.textContent = "";
+        }
+    }
+
+    $("openCameraButton").addEventListener(
+        "click", openCamera
+    );
+
+    closeButton.addEventListener(
+        "click", () => closeCamera()
+    );
+
+
+    // =====================================
+    // FOTO UPLOAD
+    // =====================================
+
+    function clearPreview() {
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+        }
+
+        previewImage.removeAttribute("src");
+        previewBox.hidden = true;
+    }
+
+    function validPhoto(file) {
+        if (!file) return false;
+
+        if (!ALLOWED.includes(file.type)) {
+            alert("Format harus JPG, JPEG, PNG, atau WEBP.");
+            return false;
+        }
+
+        if (file.size > MAX_SIZE) {
+            alert("Ukuran foto maksimal 5 MB.");
+            return false;
+        }
+
+        return true;
+    }
+
+    function showPhoto(file) {
+        if (!validPhoto(file)) {
+            fileInput.value = "";
+            clearPreview();
+            submitButton.disabled = true;
+            return;
+        }
+
+        clearPreview();
+
+        objectUrl = URL.createObjectURL(file);
+        previewImage.src = objectUrl;
+        previewBox.hidden = false;
+
+        fileStatus.textContent =
+            "Foto siap dianalisis: " + file.name;
+
+        submitButton.disabled = false;
+        analysisStatus.textContent =
+            "Klik Analisis Foto untuk memulai.";
+    }
+
+    $("choosePhotoButton").addEventListener(
+        "click", () => {
+            photoSource = "upload";
+            fileInput.click();
+        }
+    );
+
+    $("changePhotoButton").addEventListener(
+        "click", () => {
+            if (photoSource === "camera") {
+                openCamera();
+            } else {
+                fileInput.click();
+            }
+        }
+    );
+
+    fileInput.addEventListener("change", () => {
+        if (fileInput.files.length) {
+            photoSource = "upload";
+            showPhoto(fileInput.files[0]);
+        }
+    });
+
+
+    // =====================================
+    // AMBIL FOTO KAMERA
+    // =====================================
+
+    captureButton.addEventListener("click", () => {
+        if (!stream || !video.videoWidth) return;
+
+        captureButton.disabled = true;
+
+        const scale = Math.min(
+            1,
+            1600 / Math.max(
+                video.videoWidth,
+                video.videoHeight
+            )
+        );
+
+        cameraCanvas.width = Math.max(
+            1,
+            Math.round(video.videoWidth * scale)
+        );
+
+        cameraCanvas.height = Math.max(
+            1,
+            Math.round(video.videoHeight * scale)
+        );
+
+        cameraCanvas.getContext("2d").drawImage(
+            video,
+            0, 0,
+            cameraCanvas.width,
+            cameraCanvas.height
+        );
+
+        cameraCanvas.toBlob(blob => {
+            if (!blob) {
+                cameraStatus.textContent =
+                    "Foto gagal diambil.";
+                captureButton.disabled = false;
+                return;
+            }
+
+            const file = new File(
+                [blob],
+                "foto_kamera.jpg",
+                { type: "image/jpeg" }
+            );
+
+            if (!validPhoto(file)) {
+                captureButton.disabled = false;
+                return;
+            }
+
+            try {
+                const transfer = new DataTransfer();
+                transfer.items.add(file);
+                fileInput.files = transfer.files;
+
+                closeCamera(false);
+                photoSource = "camera";
+                showPhoto(file);
+                $("changePhotoButton").focus();
+
+            } catch (error) {
+                console.error(error);
+                cameraStatus.textContent =
+                    "Gagal menyimpan foto kamera.";
+                captureButton.disabled = false;
+            }
+        }, "image/jpeg", 0.85);
+    });
+
+
+    // =====================================
+    // AKSESIBILITAS KAMERA
+    // =====================================
+
+    document.addEventListener("keydown", event => {
+        if (modal.hidden) return;
+
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeCamera();
+            return;
+        }
+
+        if (event.key === "Tab") {
+            const controls = [closeButton, captureButton]
+                .filter(el => !el.disabled);
+
+            if (!controls.length) return;
+
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+
+            if (event.shiftKey &&
+                document.activeElement === first) {
+
+                event.preventDefault();
+                last.focus();
+
+            } else if (!event.shiftKey &&
+                document.activeElement === last) {
+
+                event.preventDefault();
+                first.focus();
+            }
+        }
+    });
+
+
+    // =====================================
+    // SUBMIT FORM
+    // =====================================
+
+    form.addEventListener("submit", event => {
+        if (submitting) {
+            event.preventDefault();
+            return;
+        }
+
+        if (!validPhoto(fileInput.files[0])) {
+            event.preventDefault();
+            return;
+        }
+
+        submitting = true;
+        stopCamera();
+
+        submitButton.disabled = true;
+        spinner.hidden = false;
+
+        submitText.textContent =
+            "Foto sedang dianalisis...";
+
+        analysisStatus.textContent =
+            "Proses berlangsung. Hindari mengirim berulang.";
+    });
+
+    window.addEventListener("pageshow", () => {
+        if (submitting) {
+            submitting = false;
+            submitButton.disabled = !fileInput.files.length;
+            spinner.hidden = true;
+            submitText.textContent = "Analisis Foto";
+        }
+    });
+
+
+    // =====================================
+    // SCROLL HASIL
+    // =====================================
+
+    const resultPanel = $("hasil-deteksi");
+
+    if (resultPanel) {
+        window.addEventListener("load", () => {
+            resultPanel.scrollIntoView({
+                block: "start",
+                behavior: "auto"
+            });
+
+            resultPanel.focus({
+                preventScroll: true
+            });
+        });
+    }
+
+
+    // =====================================
+    // DOWNLOAD PNG DENGAN TINGGI DINAMIS
+    // AGAR EDUKASI TIDAK TERPOTONG
+    // =====================================
+
+    const downloadButton = $("downloadResultButton");
+    const downloadStatus = $("downloadStatus");
+
+    function wrapText(ctx, text, maxWidth) {
+        const words = String(text)
+            .replace(/\s+/g, " ")
+            .trim()
+            .split(" ");
+
+        const lines = [];
+        let line = "";
+
+        for (const word of words) {
+            const trial = line ? line + " " + word : word;
+
+            if (line &&
+                ctx.measureText(trial).width > maxWidth) {
+                lines.push(line);
+                line = word;
+            } else {
+                line = trial;
+            }
+        }
+
+        if (line) lines.push(line);
+
+        return lines;
+    }
+
+    if (downloadButton) {
+        downloadButton.addEventListener(
+            "click",
+            async () => {
+
+                downloadButton.disabled = true;
+                downloadStatus.textContent =
+                    "Membuat laporan PNG...";
+
+                try {
+                    const photo = $("serverResultImage");
+
+                    if (!photo.complete) {
+                        await photo.decode();
+                    }
+
+                    if (!photo.naturalWidth) {
+                        throw new Error("Gambar tidak tersedia.");
+                    }
+
+                    const categoryText =
+                        $("resultCategory").textContent.trim();
+
+                    const confidenceElement =
+                        $("resultConfidence");
+
+                    const confidenceText = confidenceElement
+                        ? confidenceElement.textContent.trim()
+                        : "Tidak tersedia";
+
+                    const steps = Array.from(
+                        document.querySelectorAll(
+                            "#reportAidSteps li"
+                        )
+                    ).map((li, i) =>
+                        (i + 1) + ". " +
+                        li.textContent.replace(/\s+/g, " ").trim()
+                    );
+
+                    const intro = document.querySelector(
+                        ".bc-level-info"
+                    );
+
+                    const introText = intro
+                        ? intro.textContent.replace(/\s+/g, " ").trim()
+                        : "";
+
+                    const avoidText = $("reportAvoid")
+                        .textContent.replace(/\s+/g, " ").trim();
+
+                    const warningText = $("reportWarning")
+                        .textContent.replace(/\s+/g, " ").trim();
+
+                    const width = 1100;
+                    const margin = 65;
+                    const usable = width - margin * 2;
+
+                    const canvas =
+                        document.createElement("canvas");
+
+                    const ctx = canvas.getContext("2d");
+
+                    // Mengukur tinggi berdasarkan teks.
+                    ctx.font = "24px Arial";
+
+                    const blocks = [];
+
+                    function addText(text, font, color, gap = 18) {
+                        ctx.font = font;
+                        const lines = wrapText(ctx, text, usable);
+                        blocks.push({
+                            kind: "text",
+                            lines,
+                            font,
+                            color,
+                            gap,
+                            height: lines.length * 35
+                        });
+                    }
+
+                    addText(
+                        categoryText,
+                        "bold 40px Arial",
+                        "#163300",
+                        20
+                    );
+
+                    addText(
+                        "Skor model: " + confidenceText,
+                        "24px Arial",
+                        "#454745"
+                    );
+
+                    addText(
+                        "Kategori CNN bukan diagnosis atau "
+                        + "penilaian keparahan klinis.",
+                        "22px Arial",
+                        "#6a6c6a",
+                        30
+                    );
+
+                    addText(
+                        introText,
+                        "24px Arial",
+                        "#454745",
+                        25
+                    );
+
+                    addText(
+                        "PERTOLONGAN PERTAMA",
+                        "bold 30px Arial",
+                        "#163300",
+                        25
+                    );
+
+                    steps.forEach(step => addText(
+                        step,
+                        "23px Arial",
+                        "#454745",
+                        14
+                    ));
+
+                    addText(
+                        avoidText,
+                        "23px Arial",
+                        "#454745",
+                        22
+                    );
+
+                    addText(
+                        warningText,
+                        "23px Arial",
+                        "#454745",
+                        25
+                    );
+
+                    addText(
+                        "Hasil ini adalah prototipe penelitian "
+                        + "dan edukasi, bukan diagnosis medis.",
+                        "21px Arial",
+                        "#6a6c6a",
+                        0
+                    );
+
+                    const textHeight = blocks.reduce(
+                        (sum, block) =>
+                            sum + block.height + block.gap,
+                        0
+                    );
+
+                    const imageHeight = 420;
+                    const headerHeight = 160;
+                    const baseHeight =
+                        headerHeight + 100 + imageHeight
+                        + 95 + textHeight + 190;
+
+                    canvas.width = width;
+                    canvas.height = Math.ceil(baseHeight);
+
+                    // LATAR
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(
+                        0, 0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    // HEADER
+                    ctx.fillStyle = "#163300";
+                    ctx.fillRect(
+                        0, 0,
+                        canvas.width, headerHeight
+                    );
+
+                    ctx.fillStyle = "#9fe870";
+                    ctx.font = "bold 48px Arial";
+                    ctx.fillText("BurnScan", margin, 75);
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "23px Arial";
+                    ctx.fillText(
+                        "Laporan Analisis Foto",
+                        margin, 119
+                    );
+
+                    let y = headerHeight + 55;
+
+                    ctx.fillStyle = "#454745";
+                    ctx.font = "21px Arial";
+                    ctx.fillText(
+                        new Date().toLocaleString("id-ID"),
+                        margin, y
+                    );
+
+                    y += 50;
+
+                    // FOTO
+                    ctx.fillStyle = "#e8ebe6";
+                    ctx.fillRect(
+                        margin, y, usable, imageHeight
+                    );
+
+                    const scale = Math.min(
+                        usable / photo.naturalWidth,
+                        imageHeight / photo.naturalHeight
+                    );
+
+                    const pw = photo.naturalWidth * scale;
+                    const ph = photo.naturalHeight * scale;
+
+                    ctx.drawImage(
+                        photo,
+                        margin + (usable - pw) / 2,
+                        y + (imageHeight - ph) / 2,
+                        pw, ph
+                    );
+
+                    y += imageHeight + 65;
+
+                    // TEKS DINAMIS
+                    for (const block of blocks) {
+                        ctx.font = block.font;
+                        ctx.fillStyle = block.color;
+
+                        for (const line of block.lines) {
+                            ctx.fillText(
+                                line,
+                                margin,
+                                y
+                            );
+                            y += 35;
+                        }
+
+                        y += block.gap;
+                    }
+
+                    // FOOTER
+                    ctx.fillStyle = "#163300";
+                    ctx.fillRect(
+                        0,
+                        canvas.height - 90,
+                        width,
+                        90
+                    );
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "20px Arial";
+                    ctx.fillText(
+                        "BurnScan · Penelitian dan Edukasi",
+                        margin,
+                        canvas.height - 38
+                    );
+
+                    const blob = await new Promise(resolve => {
+                        canvas.toBlob(resolve, "image/png");
+                    });
+
+                    if (!blob) {
+                        throw new Error("PNG gagal dibuat.");
+                    }
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+
+                    link.href = url;
+                    link.download =
+                        "BurnScan_Hasil_"
+                        + new Date().toISOString().slice(0, 10)
+                        + ".png";
+
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+
+                    window.setTimeout(() => {
+                        URL.revokeObjectURL(url);
+                    }, 10000);
+
+                    downloadStatus.textContent =
+                        "Laporan siap diunduh.";
+
+                } catch (error) {
+                    console.error(error);
+                    downloadStatus.textContent =
+                        "Gagal membuat laporan. Coba kembali.";
+                } finally {
+                    downloadButton.disabled = false;
+                }
+            }
+        );
+    }
+
+
+    // =====================================
+    // BERSIHKAN KAMERA
+    // =====================================
+
+    window.addEventListener("pagehide", () => {
+        stopCamera();
+
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+        }
+    });
+
+})();
+</script>
+{% endblock %}
